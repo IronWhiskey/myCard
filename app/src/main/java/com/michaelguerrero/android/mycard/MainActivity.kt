@@ -17,10 +17,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // sets an intent to call the ContactDetailsActivity after share_button has been clicked
-//        share_button.setOnClickListener{
-//            val myIntent = Intent(this, ContactDetailsActivity::class.java)
-//            startActivty(myIntent)
-//        }
+        share_button.setOnClickListener{
+            val myIntent = Intent(this, ContactDetailsActivity::class.java)
+            startActivity(myIntent)
+        }
 
     }
 
