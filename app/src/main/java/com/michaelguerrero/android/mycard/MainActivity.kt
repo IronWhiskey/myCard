@@ -1,8 +1,10 @@
 package com.michaelguerrero.android.mycard
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,6 +15,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // sets an intent to call the ContactDetailsActivity after share_button has been clicked
+//        share_button.setOnClickListener{
+//            val myIntent = Intent(this, ContactDetailsActivity::class.java)
+//            startActivty(myIntent)
+//        }
+
     }
 
 
