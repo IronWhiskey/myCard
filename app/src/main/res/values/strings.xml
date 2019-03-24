@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MyCard</string>
+    <string name="share">Share</string>
+    <string name="scan">Scan</string>
+    <string name="view_contacts">View Contacts</string>
 </resources>
