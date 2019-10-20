@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         share_button.setOnClickListener{
             val myIntent = Intent(this, ContactDetailsActivity::class.java)
             startActivity(myIntent)
+            // adding a note for git testing
         }
 
     }
