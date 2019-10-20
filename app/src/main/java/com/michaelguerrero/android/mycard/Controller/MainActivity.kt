@@ -3,6 +3,7 @@ package com.michaelguerrero.android.mycard.Controller
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import com.michaelguerrero.android.mycard.R
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,7 +18,29 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // sets an intent to call the ContactDetailsActivity after share_button has been clicked
+
+        // Sets the columns to retrieve for the user profile
+//        var projection = arrayOf(
+//            ContactsContract.Profile._ID,
+//            ContactsContract.Profile.DISPLAY_NAME_PRIMARY,
+//            ContactsContract.Profile.LOOKUP_KEY,
+//            ContactsContract.Profile.PHOTO_THUMBNAIL_URI,
+//        )
+
+        // Retrieves the profile from the Contacts Provider
+//        val profileCursor = contentResolver.query(
+//            ContactsContract.Profile.CONTENT_URI,
+//            projection,
+//            null,
+//            null,
+//            null
+//        )
+
+        // debugging and testing statements //
+        Log.d("TAG", "testing")
+//        Log.d("TAG", projection[1])
+
+            // sets an intent to call the ContactDetailsActivity after share_button has been clicked
         share_button.setOnClickListener{
             val myIntent = Intent(this, ContactDetailsActivity::class.java)
             startActivity(myIntent)

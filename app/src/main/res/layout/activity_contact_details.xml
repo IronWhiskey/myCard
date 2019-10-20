@@ -10,11 +10,15 @@
     <TextView
             android:text="first_name"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:layout_editor_absoluteY="49dp"
-            tools:layout_editor_absoluteX="78dp" android:id="@+id/first_name"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/first_name" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="36dp" android:layout_marginTop="48dp"
+            app:layout_constraintTop_toTopOf="parent"/>
     <TextView
             android:text="last_name"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:layout_editor_absoluteY="49dp"
-            tools:layout_editor_absoluteX="160dp" android:id="@+id/last_name"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/last_name" app:layout_constraintStart_toEndOf="@+id/first_name"
+            android:layout_marginStart="56dp" android:layout_marginTop="48dp"
+            app:layout_constraintTop_toTopOf="parent"/>
 </android.support.constraint.ConstraintLayout>
