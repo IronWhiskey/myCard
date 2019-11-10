@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>  <!-- read access permission -->
     <uses-permission android:name="android.permission.WRITE_CONTACTS"></uses-permission> <!-- write access permission -->
     <uses-permission android:name="android.permission.READ_PROFILE"></uses-permission> <!-- read access permission for user's profile -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <application
