@@ -1,9 +1,7 @@
 package com.michaelguerrero.android.mycard.Controller
-
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import com.michaelguerrero.android.mycard.R
 import kotlinx.android.synthetic.main.activity_main.*
@@ -20,16 +18,10 @@ import java.util.UUID
 class MainActivity : AppCompatActivity() {
 
     val TAG = "LifeCycle"
-    val REQUEST_ENABLE_BT = 1;
+    val REQUEST_ENABLE_BT = 1
     val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     val MY_UUID = UUID.randomUUID()
     val NAME = "TEST_LED"
-
-//    fun createUUID(){
-//        val uuid = UUID.randomUUID()
-////        val randomUUIDString = uuid.toString()
-//        return uuid
-//    }
 
 
     // Create a BroadcastReceiver for ACTION_FOUND.
@@ -68,7 +60,6 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         }
 
-//        val receiver = object : BroadcastReceiver()
 
         // Register for broadcasts when a device is discovered.
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
@@ -81,25 +72,6 @@ class MainActivity : AppCompatActivity() {
 
 //        myBluethThread.cancel()
 
-
-
-
-        // Sets the columns to retrieve for the user profile
-//        var projection = arrayOf(
-//            ContactsContract.Profile._ID,
-//            ContactsContract.Profile.DISPLAY_NAME_PRIMARY,
-//            ContactsContract.Profile.LOOKUP_KEY,
-//            ContactsContract.Profile.PHOTO_THUMBNAIL_URI,
-//        )
-
-        // Retrieves the profile from the Contacts Provider
-//        val profileCursor = contentResolver.query(
-//            ContactsContract.Profile.CONTENT_URI,
-//            projection,
-//            null,
-//            null,
-//            null
-//        )
 
         // debugging and testing statements //
         Log.d("TAG", "testing")
