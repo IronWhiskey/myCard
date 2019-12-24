@@ -19,12 +19,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 
-import com.michaelguerrero.android.mycard.Controller.MyBluetoothService
-import android.widget.Toast
-import android.support.v4.app.SupportActivity
-import android.support.v4.app.SupportActivity.ExtraData
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-//import sun.jvm.hotspot.utilities.IntArray
 
 class MainActivity : AppCompatActivity() {
 
