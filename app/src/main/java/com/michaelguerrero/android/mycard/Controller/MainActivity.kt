@@ -14,6 +14,17 @@ import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import java.io.IOException
 import java.util.UUID
+import android.support.v4.content.ContextCompat
+import android.Manifest
+import android.content.pm.PackageManager
+import android.support.v4.app.ActivityCompat
+
+import com.michaelguerrero.android.mycard.Controller.MyBluetoothService
+import android.widget.Toast
+import android.support.v4.app.SupportActivity
+import android.support.v4.app.SupportActivity.ExtraData
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+//import sun.jvm.hotspot.utilities.IntArray
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     val MY_UUID = UUID.randomUUID()
     val NAME = "TEST_LED"
+    val REQUEST_COARSE_LOCATION_PERMISSIONS = 121;
 
 
     // Create a BroadcastReceiver for ACTION_FOUND.
@@ -35,12 +47,20 @@ class MainActivity : AppCompatActivity() {
                     // object and its info from the Intent.
                     val device: BluetoothDevice =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                        Log.d("TAG", "***************** DEVICE WAS FOUND ***************** ")
                     val deviceName = device.name
+                    Log.d("TAG", "DEVICE NAME:" + deviceName)
                     val deviceHardwareAddress = device.address // MAC address
+                    Log.d("TAG", "DEVICE NAME:" + deviceHardwareAddress)
+
+                    val myBluethThread = AcceptThread()
+                    myBluethThread.run()
                 }
             }
         }
     }
+
+
 
     // function that handles onCreate of activity lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // Get BluetoothAdapter
-//        val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+        val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter == null) {
             // Device doesn't support Bluetooth
             Log.d("TAG", "bluetooth not supported")
@@ -66,16 +86,48 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, filter)
 
 
-        val myBluethThread = AcceptThread()
-        myBluethThread.run()
+        val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
+            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+        }
 
+
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                    REQUEST_COARSE_LOCATION_PERMISSIONS)
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
+        }
+
+        startActivity(discoverableIntent)
+
+
+        // start discovering bluetooth devices
+        bluetoothAdapter?.startDiscovery()
 
 //        myBluethThread.cancel()
 
 
         // debugging and testing statements //
         Log.d("TAG", "testing")
-//        Log.d("TAG", projection[1])
 
             // sets an intent to call the ContactDetailsActivity after share_button has been clicked
         share_button.setOnClickListener{
@@ -87,11 +139,37 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            REQUEST_COARSE_LOCATION_PERMISSIONS -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+
+            // Add other 'when' lines to check for other
+            // permissions this app might request.
+            else -> {
+                // Ignore all other requests.
+            }
+        }
+    }
+
+
     // function that handles onStart of activity lifecycle
     override fun onStart() {
         Log.d(TAG, "${javaClass.simpleName} OnStart")
         super.onStart()
     }
+
 
 
     // function that handles onResume of activity lifecycle
@@ -101,11 +179,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
     // function that handles onRestart of activity lifecycle
     override fun onRestart() {
         Log.d(TAG, "${javaClass.simpleName} onRestart")
         super.onRestart()
     }
+
 
 
     // function that handles onPause of activity lifecycle
@@ -115,11 +195,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
     // function that handles onStop of activity lifecycle
     override fun onStop() {
         Log.d(TAG, "${javaClass.simpleName} onStop")
         super.onStop()
     }
+
 
 
     // function that handles onDestroy of activity lifecycle
@@ -129,6 +211,7 @@ class MainActivity : AppCompatActivity() {
         // Don't forget to unregister the ACTION_FOUND receiver.
         unregisterReceiver(receiver)
     }
+
 
 
     private inner class AcceptThread : Thread() {
@@ -141,6 +224,7 @@ class MainActivity : AppCompatActivity() {
             // Keep listening until exception occurs or a socket is returned.
             var shouldLoop = true
             while (shouldLoop) {
+                Log.d("TAG", "inside while loop")
                 val socket: BluetoothSocket? = try {
                     mmServerSocket?.accept()
 
@@ -149,11 +233,12 @@ class MainActivity : AppCompatActivity() {
                     shouldLoop = false
                     null
                 }
-//                socket?.also {
-//                    manageMyConnectedSocket(it)
-//                    mmServerSocket?.close()
-//                    shouldLoop = false
-//                }
+                socket?.also {
+                    Log.d("TAG", "The try statement passed.")
+                    manageMyConnectedSocket(it)
+                    mmServerSocket?.close()
+                    shouldLoop = false
+                }
             }
         }
 
@@ -164,6 +249,12 @@ class MainActivity : AppCompatActivity() {
             } catch (e: IOException) {
                 Log.e(TAG, "Could not close the connect socket", e)
             }
+        }
+
+        fun manageMyConnectedSocket(param: BluetoothSocket) {
+//            val bluetoothService = MyBluetoothService(BluetoothSocket)
+            Log.d("TAG", "inside manageMyConnectedSocket")
+
         }
     }
 }
