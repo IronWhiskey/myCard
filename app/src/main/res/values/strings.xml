@@ -2,5 +2,6 @@
     <string name="app_name">MyCard</string>
     <string name="share">Share</string>
     <string name="scan">Scan</string>
-    <string name="view_contacts">View Contacts</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="off">off</string>
 </resources>

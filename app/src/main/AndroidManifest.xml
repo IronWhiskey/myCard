@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.michaelguerrero.android.mycard" >
+        package="com.michaelguerrero.android.mycard">
+
     <uses-permission android:name="android.permission.READ_CONTACTS" /> <!-- read access permission -->
     <uses-permission android:name="android.permission.WRITE_CONTACTS" /> <!-- write access permission -->
-    <uses-permission android:name="android.permission.READ_PROFILE" /><!-- read access permission for user's profile -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.READ_PROFILE" /> <!-- read access permission for user's profile -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
@@ -15,15 +17,16 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity android:name=".devices"></activity>
+        <activity android:name=".DeviceList" />
         <activity android:name=".Controller.MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Controller.ContactDetailsActivity">
-        </activity>
+        <activity android:name=".Controller.ContactDetailsActivity" />
     </application>
 
 </manifest>

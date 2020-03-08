@@ -7,17 +7,14 @@ import com.michaelguerrero.android.mycard.R
 import kotlinx.android.synthetic.main.activity_main.*
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothAdapter
-import android.content.IntentFilter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import java.io.IOException
 import java.util.UUID
-import android.support.v4.content.ContextCompat
-import android.Manifest
 import android.content.pm.PackageManager
-import android.support.v4.app.ActivityCompat
+import com.michaelguerrero.android.mycard.devices
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
         override fun onReceive(context: Context, intent: Intent) {
             val action: String = intent.action
+            val myBluethThread = AcceptThread()
+
             when(action) {
                 BluetoothDevice.ACTION_FOUND -> {
                     // Discovery has found a device. Get the BluetoothDevice
@@ -47,13 +46,16 @@ class MainActivity : AppCompatActivity() {
                     val deviceHardwareAddress = device.address // MAC address
                     Log.d("TAG", "DEVICE NAME:" + deviceHardwareAddress)
 
-                    val myBluethThread = AcceptThread()
-                    myBluethThread.run()
+//                    myBluethThread.run()
+                }
+
+                BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED -> {
+                    myBluethThread.cancel()
+                    Log.d( "TAG","Bluetooth thread canceled")
                 }
             }
         }
     }
-
 
 
     // function that handles onCreate of activity lifecycle
@@ -62,74 +64,88 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        // Get BluetoothAdapter
-        val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
-        if (bluetoothAdapter == null) {
-            // Device doesn't support Bluetooth
-            Log.d("TAG", "bluetooth not supported")
-        }
-
-        if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-        }
-
-
-        // Register for broadcasts when a device is discovered.
-        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        registerReceiver(receiver, filter)
-
-
-        val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
-        }
-
-
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                    REQUEST_COARSE_LOCATION_PERMISSIONS)
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            // Permission has already been granted
-        }
-
-        startActivity(discoverableIntent)
-
+//        // Get BluetoothAdapter
+//        val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+//        if (bluetoothAdapter == null) {
+//            // Device doesn't support Bluetooth
+//            Log.d("TAG", "bluetooth not supported")
+//        }
+//
+//        // Enable Bluetooth Adapter
+//        if (bluetoothAdapter?.isEnabled == false) {
+//            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+//            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+//        }
+//
+//
+//        // Register for broadcasts when a device is discovered.
+//        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+//        registerReceiver(receiver, filter)
+//
+//        // setup intent to extend bluetooth discovery to 5 minutes
+//        val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
+//            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+//        }
+//
+//
+//        // Here, thisActivity is the current activity
+//        if (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION)
+//            != PackageManager.PERMISSION_GRANTED) {
+//
+//            // Permission is not granted
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//            } else {
+//                // No explanation needed, we can request the permission.
+//                ActivityCompat.requestPermissions(this,
+//                    arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+//                    REQUEST_COARSE_LOCATION_PERMISSIONS)
+//
+//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+//                // app-defined int constant. The callback method gets the
+//                // result of the request.
+//            }
+//        } else {
+//            // Permission has already been granted
+//        }
+//
+//        startActivity(discoverableIntent)
 
         // start discovering bluetooth devices
-        bluetoothAdapter?.startDiscovery()
-
-//        myBluethThread.cancel()
-
+//        bluetoothAdapter?.startDiscovery()
 
         // debugging and testing statements //
-        Log.d("TAG", "testing")
+//        Log.d("TAG", "testing")
 
-            // sets an intent to call the ContactDetailsActivity after share_button has been clicked
-        share_button.setOnClickListener{
-            val myIntent = Intent(this, ContactDetailsActivity::class.java)
+        /**
+         ********* All OnClick Listeners *********
+         * **/
+        // init bluetooth discovery process
+        scan_button.setOnClickListener{
+            val myIntent = Intent(this, devices::class.java)
             startActivity(myIntent)
-            // adding a note for git testing
+//            bluetoothAdapter?.startDiscovery(
         }
 
+        cancel_button.setOnClickListener{
+            bluetoothAdapter?.cancelDiscovery()
+            Log.d( "TAG","Canceling Bluetooth Discovery")
+
+        }
+
+        // terminate bluetooth thread
+        off.setOnClickListener{
+            bluetoothAdapter?.disable()
+            Log.d( "TAG","Disabling Bluetooth Adapter")
+        }
+        /**
+         ********* End OnClick Listeners *********
+         * **/
     }
 
 
