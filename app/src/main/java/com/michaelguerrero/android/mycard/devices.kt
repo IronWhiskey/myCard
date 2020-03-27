@@ -106,7 +106,6 @@ class devices : AppCompatActivity() {
         }
 
 
-
         // Register for broadcasts when a device is discovered.
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(receiver, filter)
@@ -145,14 +144,12 @@ class devices : AppCompatActivity() {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
-        } else {
-            // Permission has already been granted
         }
         /****************** START DEVICE DISCOVERY ******************/
-//        bluetoothAdapter?.startDiscovery()
-        // Register reciever when the bluetooth adapter state changes
-        val filter2 = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        registerReceiver(receiver, filter2)
+        if (bluetoothAdapter?.isDiscovering!!){
+            bluetoothAdapter?.cancelDiscovery()
+        }
+        bluetoothAdapter?.startDiscovery()
     }
 
 
