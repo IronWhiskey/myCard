@@ -31,16 +31,15 @@ class devices : AppCompatActivity() {
 
 
 
-    // Create a BroadcastReceiver for ACTION_FOUND.
+    // Create a BroadcastReceiver for BLUETOOTH ACTIONS
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action: String = intent.action
             val myBluethThread = AcceptThread()
 
 
-            Log.d("TAG", "inside reciever")
-
             when(action) {
+                // OCCURS WHEN THE BLUE TOOTH ADAPTER STATE CHANGES
                 BluetoothAdapter.ACTION_STATE_CHANGED -> {
                     var bluetoothState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
                     Log.d("TAG", "*********** BLUETOOTH ADAPTER STATE CHANGED *********** ")
@@ -51,10 +50,10 @@ class devices : AppCompatActivity() {
                             Log.d("TAG", "*********** SCANNING!!! *********** ")
                             bluetoothAdapter?.startDiscovery()
                         }
-
                     }
                 }
 
+                // OCCURS WHEN A NEW BLUETOOTH DEVICE IS FOUND DURING A DISCOVERY
                 BluetoothDevice.ACTION_FOUND -> {
                     // Discovery has found a device. Get the BluetoothDevice
                     // object and its info from the Intent.
@@ -70,6 +69,7 @@ class devices : AppCompatActivity() {
                     arrayAdapter.notifyDataSetChanged()
                 }
 
+                // OCCURS WHEN A BLUETOOTH DISCONNECT REQUEST IS RECIEVED
                 BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED -> {
                     myBluethThread.cancel()
                     Log.d( "TAG","Bluetooth thread canceled")
@@ -85,10 +85,10 @@ class devices : AppCompatActivity() {
         var mListView = findViewById<ListView>(R.id.bt_devices)
         arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, deviceList)
         mListView.adapter = arrayAdapter
-        deviceList.add("Device 1")
-        deviceList.add("Device 2")
-        deviceList.add("Device 3")
-        deviceList.add("Device 4")
+//        deviceList.add("Device 1")
+//        deviceList.add("Device 2")
+//        deviceList.add("Device 3")
+//        deviceList.add("Device 4")
 
         /****************** SETTING UP BLUETOOTH ADAPTER FOR DEVICE DISCOVERY ******************/
         // Get BluetoothAdapter
