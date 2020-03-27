@@ -36,7 +36,8 @@ class devices : AppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             val action: String = intent.action
             val myBluethThread = AcceptThread()
-
+            var deviceName = "unknown"
+            var deviceHardwareAddress = "unknown"
 
             when(action) {
                 // OCCURS WHEN THE BLUE TOOTH ADAPTER STATE CHANGES
@@ -60,13 +61,17 @@ class devices : AppCompatActivity() {
                     val device: BluetoothDevice =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     Log.d("TAG", "***************** DEVICE WAS FOUND ***************** ")
-                    val deviceName = device.name
+                    if (device.name != null){
+                        deviceName = device.name
+                    }
                     Log.d("TAG", "DEVICE NAME:" + deviceName)
-                    val deviceHardwareAddress = device.address // MAC address
+                    if (device.address != null){
+                        deviceHardwareAddress = device.address // MAC address
+                    }
                     Log.d("TAG", "DEVICE NAME:" + deviceHardwareAddress)
-                    deviceList.add(device.name)
-//                    myBluethThread.run()
+                    deviceList.add(deviceName + deviceHardwareAddress)
                     arrayAdapter.notifyDataSetChanged()
+                    //  myBluethThread.run()
                 }
 
                 // OCCURS WHEN A BLUETOOTH DISCONNECT REQUEST IS RECIEVED
