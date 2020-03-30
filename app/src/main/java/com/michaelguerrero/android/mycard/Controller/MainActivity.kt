@@ -12,7 +12,6 @@ import com.michaelguerrero.android.mycard.devices
 class MainActivity : AppCompatActivity() {
 
     val TAG = "LifeCycle"
-    val REQUEST_COARSE_LOCATION_PERMISSIONS = 121;
 
 
     // function that handles onCreate of activity lifecycle
