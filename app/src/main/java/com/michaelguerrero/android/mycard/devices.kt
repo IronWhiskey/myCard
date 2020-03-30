@@ -9,35 +9,77 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcel
+import android.os.ParcelUuid
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import java.io.IOException
 import java.util.*
+import android.view.ViewGroup
+import android.widget.SimpleAdapter
+import java.io.Serializable
+
 
 class devices : AppCompatActivity() {
 
     val TAG = "LifeCycle"
     val REQUEST_ENABLE_BT = 1
-    val MY_UUID = UUID.randomUUID()
     val NAME = "TEST_LED"
     val REQUEST_COARSE_LOCATION_PERMISSIONS = 121;
 
-    var deviceList = arrayListOf<String>()
+
+    var UUID = ""
+    var bt_uuid = java.util.UUID.fromString("00000000-0000-0000-0000-000000000000")
+    var deviceList = arrayListOf<BluetoothDevice>()
     var bluetoothAdapter: BluetoothAdapter? = null
-    lateinit var arrayAdapter : ArrayAdapter<String>
+    lateinit var arrayAdapter : ArrayAdapter<BluetoothDevice>
 
 
+
+    // THREAD USED TO CONNECT AS A CLIENT TO BLUETOOTH SERVER
+    private inner class ConnectThread(device: BluetoothDevice) : Thread() {
+
+        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            device.createRfcommSocketToServiceRecord(bt_uuid)
+        }
+
+        public override fun run() {
+            // Cancel discovery because it otherwise slows down the connection.
+            bluetoothAdapter?.cancelDiscovery()
+
+            mmSocket?.use { socket ->
+                // Connect to the remote device through the socket. This call blocks
+                // until it succeeds or throws an exception.
+                socket.connect()
+
+                // The connection attempt succeeded. Perform work associated with
+                // the connection in a separate thread.
+//                manageMyConnectedSocket(socket)
+            }
+        }
+
+        // Closes the client socket and causes the thread to finish.
+        fun cancel() {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not close the client socket", e)
+            }
+        }
+    }
 
     // Create a BroadcastReceiver for BLUETOOTH ACTIONS
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action: String = intent.action
-            val myBluethThread = AcceptThread()
-            var deviceName = "unknown"
-            var deviceHardwareAddress = "unknown"
+            var devName = "unknown"
+            var devAddress = "unknown"
+//            val uuid = arrayOf<String>()
 
             when(action) {
                 // OCCURS WHEN THE BLUE TOOTH ADAPTER STATE CHANGES
@@ -62,21 +104,22 @@ class devices : AppCompatActivity() {
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     Log.d("TAG", "***************** DEVICE WAS FOUND ***************** ")
                     if (device.name != null){
-                        deviceName = device.name
+                        devName = device.name
                     }
-                    Log.d("TAG", "DEVICE NAME:" + deviceName)
+//                    Log.d("TAG", "DEVICE NAME:" + name)
                     if (device.address != null){
-                        deviceHardwareAddress = device.address // MAC address
+                        devAddress = device.address // MAC address
                     }
-                    Log.d("TAG", "DEVICE NAME:" + deviceHardwareAddress)
-                    deviceList.add(deviceName + deviceHardwareAddress)
+//                    Log.d("TAG", "DEVICE NAME:" + address)
+                    var name = devName.plus("--").plus(devAddress)
+                    Log.d("TAG", "DEVICE: ".plus(name))
+                    deviceList.add(device)
                     arrayAdapter.notifyDataSetChanged()
-                    //  myBluethThread.run()
                 }
 
                 // OCCURS WHEN A BLUETOOTH DISCONNECT REQUEST IS RECIEVED
                 BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED -> {
-                    myBluethThread.cancel()
+//                    myBluethThread.cancel()
                     Log.d( "TAG","Bluetooth thread canceled")
                 }
             }
@@ -93,7 +136,28 @@ class devices : AppCompatActivity() {
 //        deviceList.add("Device 1")
 //        deviceList.add("Device 2")
 //        deviceList.add("Device 3")
-//        deviceList.add("Device 4")
+
+        // Onclick Listener to engage next activity after selecting a device from the list
+        mListView.setOnItemClickListener { parent, view, position, id ->
+            val element = arrayAdapter.getItem(position) // The item that was clicked
+            val duration = Toast.LENGTH_SHORT
+            if(element.uuids != null) {
+                UUID = element.uuids.toString()
+                bt_uuid = java.util.UUID.fromString(UUID)
+                var message = "Found Open Bluetooth Server Socket"
+                var toast = Toast.makeText(applicationContext, message, duration)
+                toast.show()
+
+                // EGAGEING THREAD AND CONNECTING TO A BLUETOOTH SERVER DEVICE
+//                val myBluethThread = ConnectThread(element)
+//                myBluethThread.run()
+            }
+            else{
+                var message = "Device has no Bluetooth Server Socket Open"
+                var toast = Toast.makeText(applicationContext, message, duration)
+                toast.show()
+            }
+        }
 
         /****************** SETTING UP BLUETOOTH ADAPTER FOR DEVICE DISCOVERY ******************/
         // Get BluetoothAdapter
@@ -110,7 +174,6 @@ class devices : AppCompatActivity() {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         }
 
-
         // Register for broadcasts when a device is discovered.
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(receiver, filter)
@@ -124,8 +187,6 @@ class devices : AppCompatActivity() {
 //            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
 //        }
 //        startActivity(discoverableIntent)
-
-
 
         // CHECKING AND REQUESTING PROPER PERMISSIONS
         if (ContextCompat.checkSelfPermission(this,
@@ -202,51 +263,8 @@ class devices : AppCompatActivity() {
     override fun onDestroy() {
         Log.d(TAG, "${javaClass.simpleName} onDestroy")
         super.onDestroy()
+        bluetoothAdapter?.cancelDiscovery()
         unregisterReceiver(receiver)
     }
 
-
-    private inner class AcceptThread : Thread() {
-
-        private val mmServerSocket: BluetoothServerSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            bluetoothAdapter?.listenUsingInsecureRfcommWithServiceRecord(NAME, MY_UUID)
-        }
-
-        override fun run() {
-            // Keep listening until exception occurs or a socket is returned.
-            var shouldLoop = true
-            while (shouldLoop) {
-                Log.d("TAG", "inside while loop")
-                val socket: BluetoothSocket? = try {
-                    mmServerSocket?.accept()
-
-                } catch (e: IOException) {
-                    Log.e(TAG, "Socket's accept() method failed", e)
-                    shouldLoop = false
-                    null
-                }
-                socket?.also {
-                    Log.d("TAG", "The try statement passed.")
-                    manageMyConnectedSocket(it)
-                    mmServerSocket?.close()
-                    shouldLoop = false
-                }
-            }
-        }
-
-        // Closes the connect socket and causes the thread to finish.
-        fun cancel() {
-            try {
-                mmServerSocket?.close()
-            } catch (e: IOException) {
-                Log.e(TAG, "Could not close the connect socket", e)
-            }
-        }
-
-        fun manageMyConnectedSocket(param: BluetoothSocket) {
-//            val bluetoothService = MyBluetoothService(BluetoothSocket)
-            Log.d("TAG", "inside manageMyConnectedSocket")
-
-        }
-    }
 }
